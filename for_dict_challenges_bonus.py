@@ -33,7 +33,6 @@ messages = [
 import random
 import uuid
 import datetime
-
 import lorem
 
 
@@ -55,67 +54,56 @@ def generate_chat_history():
     return messages
 
 
-def user_messages(messages): # 'id пользователя: список с id всех его сообщений
+def user_messages(messages):
     user_messages = {}
-    for _ in messages:
-        sender_id = _['sent_by']
-        message_id = _['id']
+    for message in messages:
+        sender_id = message['sent_by']
+        message_id = message['id']
         
-        if user_messages.get(sender_id) == None:
+        if user_messages.get(sender_id) is None:
             user_messages[sender_id] = [message_id]
         else:
             user_messages[sender_id].append(message_id)
-    return user_messages # 'id пользователя: список с id всех его сообщений
-def first_issue(user_messages):
-    wrote_the_most = max(user_messages.values(), key=len)
-    for _ in user_messages:
-        if user_messages[_] == wrote_the_most:
-            wrote_the_most = _
-    return wrote_the_most
+    return user_messages # id пользователя: id всех сообщеня
+def who_wrote_the_most_posts(user_messages):
+    maximum_number_of_messages = max(user_messages.values(), key=len)
+    for user_id in user_messages:
+        if user_messages[user_id] == maximum_number_of_messages:
+            return user_id
 
 
-def number_answers(messages):
+def number_of_responses_per_message(messages):
     number_answers = {}
-    for _ in messages:
-        if _['reply_for'] != None and _['reply_for'] != []:
-            if _['reply_for'] in number_answers:
-                number_answers[_['reply_for']] += 1
-            else:
-                number_answers[_['reply_for']] = 1
+    for message in messages:
+        if message['reply_for'] is not None and message['reply_for']:
+            number_answers[message['reply_for']] = number_answers.get(message['reply_for'], 0) + 1
     return number_answers
-def second_issue(number_answers):
+def got_the_most_responses(number_answers):
     number_responses_per_user = {}
-    for _ in chat_history:
-        message_id = _['id']
-        for i in number_answers:
-            if i == message_id:
-                if number_responses_per_user.get(_['sent_by']) == None:
-                    number_responses_per_user[_['sent_by']] = number_answers[i]
-                else:
-                    number_responses_per_user[_['sent_by']] += number_answers[i]
+    for message in chat_history:
+        for message_id in number_answers:
+            if message_id == message['id']:
+                number_responses_per_user[message['sent_by']] = number_responses_per_user.get(message['sent_by'], 0) + 1
     most_cited = max(number_responses_per_user.values())
-    for _ in number_responses_per_user:
-        if number_responses_per_user[_] == most_cited:
-            most_cited = _
-    return most_cited
+    for uder_id in number_responses_per_user:
+        if number_responses_per_user[uder_id] == most_cited:
+            return uder_id
 
 
 def how_many_views(user_messages):
     how_many_views = {}
-    reply = []
-    for _ in user_messages:
+    for user_id in user_messages:
         who_saw = []
-        message_list = user_messages[_]
-        for i in message_list:
-            for j in chat_history:
-                if j['id'] == i:
-                    who_saw += j['seen_by']
-        how_many_views[_] = len(who_saw)
+        message_list = user_messages[user_id]
+        for user_message in message_list:
+            for message in chat_history:
+                if message['id'] == user_messages:
+                    who_saw += message['seen_by']
+        how_many_views[user_id] = len(who_saw)
     most_viewed = max(how_many_views.values())
-    for _ in how_many_views:
-        if how_many_views[_] == most_viewed:
-            reply.append(_)
-    return reply
+    for user_id in how_many_views:
+        if how_many_views[user_id] == most_viewed:
+            return user_id
 
 
 def sending_time(messages):
@@ -136,30 +124,29 @@ def sending_time(messages):
         else:
             sending_time['night'] += 1
     busiest_time = max(sending_time.values())
-    for _ in sending_time:
-        if sending_time[_] == busiest_time:
-            return _
+    for time in sending_time:
+        if sending_time[time] == busiest_time:
+            return time
 
 
 def is_there_answer(id):
-    for _ in chat_history:
-        if _['reply_for'] == id:
+    for message in chat_history:
+        if message['reply_for'] == id:
             return True
     return False
 def reply_for_from_id(id):
-    for _ in chat_history:
-        if _['id'] == id:
-            return _['reply_for']
+    for message in chat_history:
+        if message['id'] == id:
+            return message['reply_for']
 def message_threads(messages):
     message_threads = {}
-    reply = []
-    for _ in messages:
-        answer = is_there_answer(_['id'])
+    for message in messages:
+        answer = is_there_answer(message['id'])
         count = 0
-        by = _['id']
-        beginning = _['reply_for']
+        by = message['id']
+        beginning = message['reply_for']
         if answer == False:
-            while beginning != None and beginning != []:
+            while beginning is not None and beginning:
                 by = beginning
                 beginning = reply_for_from_id(beginning)
                 count += 1
@@ -168,23 +155,20 @@ def message_threads(messages):
     
     max_branch_length = max(message_threads.values())
 
-    for _ in message_threads:
-        if message_threads[_] == max_branch_length:
-            reply.append(_)
-    return reply
+    for message_id in message_threads:
+        if message_threads[message_id] == max_branch_length:
+            return message_id
 
 
 if __name__ == "__main__":
     chat_history = generate_chat_history()
 
-    print(f'ID пользователя, который написал больше всех сообщений: {first_issue(user_messages(chat_history))}', end='\n\n')
+    print(f'ID пользователя, который написал больше всех сообщений: {who_wrote_the_most_posts(user_messages(chat_history))}', end='\n\n') #1
 
-    print(f'ID пользователя, на которого больше всего отвечали: {second_issue(number_answers(chat_history))}', end='\n\n') #2
+    print(f'ID пользователя, на которого больше всего отвечали: {got_the_most_responses(number_of_responses_per_message(chat_history))}', end='\n\n') #2
 
-    print('ID пользователя с наибольшим кол-ом просмотров:', end=' ') #3
-    print(*how_many_views(user_messages(chat_history)), end='\n\n')
+    print(f'ID пользователя с наибольшим кол-ом просмотров: {how_many_views(user_messages(chat_history))}', end='\n\n') #3
 
     print(f'Больше всего сообщений: {sending_time(chat_history)}', end='\n\n') #4
 
-    print('Начало для самых длинных тредов:', end='\n') #5
-    print(*message_threads(chat_history), sep='\n') 
+    print(f'Начало для самых длинных тредов: {message_threads(chat_history)}') #5

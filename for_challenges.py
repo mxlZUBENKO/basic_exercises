@@ -27,7 +27,7 @@ is_male = {
     'Маша': False,
 }
 for name in is_male:
-    if is_male[name] == True:
+    if is_male[name]:
         print(f'{name}, мужской пол')
     else:
         print(f'{name}, женский пол')
@@ -47,7 +47,7 @@ groups = [
     ['Вася', 'Маша', 'Саша', 'Женя'],
     ['Оля', 'Петя', 'Гриша'],
 ]
-print(f'Всего груп: {len(groups)}')
+print(f'Всего групп: {len(groups)}')
 for group in range(len(groups)):
     print(f'Группа {group+1}: {len(groups[group])} ученика')
 # ???
